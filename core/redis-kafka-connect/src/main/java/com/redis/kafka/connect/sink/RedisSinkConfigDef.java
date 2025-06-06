@@ -61,6 +61,27 @@ public class RedisSinkConfigDef extends RedisConfigDef {
 	public static final String TYPE_DOC = "Destination data structure: "
 			+ String.join(",", Stream.of(RedisType.values()).map(RedisType::name).toArray(String[]::new));
 
+	public static final String XADD_TRIMMING_APPROXIMATE_CONFIG = "redis.xadd.trimming.approximate";
+
+	public static final String XADD_TRIMMING_APPROXIMATE_DEFAULT = "true";
+
+	public static final String XADD_TRIMMING_APPROXIMATE_DOC = "Dictates the trimming strategy for the stream. If " +
+		"true, the 'approximate' option is used. If false, the 'exact' option is used.";
+
+	public static final String XADD_MAXLEN_CONFIG = "redis.xadd.maxlen";
+
+	public static final String XADD_MAXLEN_DEFAULT = "1024";
+
+	public static final String XADD_MAXLEN_DOC = "The trimmed stream's length will be exactly the minimum between " +
+		"its original length and the specified threshold.";
+
+	public static final String XADD_RECORD_KEY_CONFIG = "redis.xadd.record.key";
+
+	public static final String XADD_RECORD_KEY_DEFAULT = "false";
+
+	public static final String XADD_RECORD_KEY_DOC = "Whether to use the record key as Redis stream key instead of " +
+		"the collection key.";
+
 	protected static final Set<RedisType> MULTI_EXEC_COMMANDS = Stream
 			.of(RedisType.STREAM, RedisType.LIST, RedisType.SET, RedisType.ZSET).collect(Collectors.toSet());
 
@@ -81,6 +102,11 @@ public class RedisSinkConfigDef extends RedisConfigDef {
 		define(MULTIEXEC_CONFIG, Type.BOOLEAN, MULTIEXEC_DEFAULT, Importance.MEDIUM, MULTIEXEC_DOC);
 		define(WAIT_REPLICAS_CONFIG, Type.INT, WAIT_REPLICAS_DEFAULT, Importance.MEDIUM, WAIT_REPLICAS_DOC);
 		define(WAIT_TIMEOUT_CONFIG, Type.LONG, WAIT_TIMEOUT_DEFAULT, Importance.MEDIUM, WAIT_TIMEOUT_DOC);
+		define(XADD_TRIMMING_APPROXIMATE_CONFIG, Type.BOOLEAN, XADD_TRIMMING_APPROXIMATE_DEFAULT,
+			Importance.MEDIUM, XADD_TRIMMING_APPROXIMATE_DOC);
+		define(XADD_MAXLEN_CONFIG, Type.INT, XADD_MAXLEN_DEFAULT, Importance.MEDIUM, XADD_MAXLEN_DOC);
+		define(XADD_RECORD_KEY_CONFIG, Type.BOOLEAN, XADD_RECORD_KEY_DEFAULT, Importance.MEDIUM,
+			XADD_RECORD_KEY_DOC);
 	}
 
 	@Override

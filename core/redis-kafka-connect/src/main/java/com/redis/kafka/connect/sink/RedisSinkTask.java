@@ -76,6 +76,7 @@ import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.codec.ByteArrayCodec;
+import io.lettuce.core.XAddArgs;
 
 public class RedisSinkTask extends SinkTask {
 
@@ -205,7 +206,7 @@ public class RedisSinkTask extends SinkTask {
 		case STRING:
 			return new Set<>(this::key, this::value);
 		case STREAM:
-			return new Xadd<>(this::collectionKey, this::streamMessages);
+			return getXAddOperation();
 		case LIST:
 			return new Rpush<>(this::collectionKey, this::members);
 		case SET:
@@ -217,6 +218,28 @@ public class RedisSinkTask extends SinkTask {
 		default:
 			throw new ConfigException(RedisSinkConfigDef.TYPE_CONFIG, config.getType());
 		}
+	}
+
+	private Xadd<byte[], byte[], SinkRecord> getXAddOperation() {
+		XAddArgs args = new XAddArgs();
+
+		args.maxlen(config.getXaddMaxLen());
+
+		if (config.getIsXAddTrimmingApproximate()) {
+			args.approximateTrimming();
+		} else {
+			args.exactTrimming();
+		}
+
+		// Create and configure the Xadd operation
+		Xadd<byte[], byte[], SinkRecord> operation = new Xadd<>(
+			config.getXaddRecordKey() ? this::key : this::collectionKey,
+			this::streamMessages
+		);
+
+		operation.setArgs(args);
+
+		return operation;
 	}
 
 	private Collection<ScoredValue<byte[]>> scoredValues(SinkRecord sinkRecord) {
